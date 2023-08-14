@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="canonical" href="https://estiknok.github.io/projects/">
+        <meta name="generator" content="Astro v2.10.3">
+
+        <!-- General Meta Tags -->
+        <title>Home - Dav1d</title>
+        <meta name="title" content="Home - Dav1d">
+        <meta name="description" content="My personal portfolio and blog">
+        <meta name="author" content="David">
+        <link rel="sitemap" href="/sitemap-index.xml">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" content="Home - Dav1d">
+        <meta property="og:description" content="My personal portfolio and blog">
+        <meta property="og:url" content="https://estiknok.github.io/projects/">
+        <meta property="og:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://estiknok.github.io/projects/">
+        <meta property="twitter:title" content="Home - Dav1d">
+        <meta property="twitter:description" content="My personal portfolio and blog">
+        <meta property="twitter:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+
+        <!--Theme -->
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="/_astro/404.57a0ff2a.css" />
+<link rel="stylesheet" href="/_astro/index.299720e1.css" /><script type="module" src="/_astro/hoisted.5c5ff275.js"></script></head>
+    <body class="dark:bg-neutral-900">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
+    
+            <div class="flex h-screen flex-col justify-between">
+                <header class="flex items-center justify-between py-10">
+                    <div>
+                        <a href="/">
+            
+                            <div class="flex items-center justify-between">
+                                <div class="mr-3">
+                                    <img src="/static/images/logo_small.png" alt="logo" width="69">
+                                </div>
+                                <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100">
+                                            Dav1d
+                                        </div>
+                            </div>
+                        
+        </a>
+                    </div>
+                    <div class="flex items-center text-base leading-5">
+                        <div class="hidden sm:block">
+                            <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Home
+        </a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Blog
+        </a><a href="/tags" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Tags
+        </a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Projects
+        </a>
+                        </div>
+                        <button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100">
+        <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+        <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+    </svg>
+</button>
+
+<script>
+    const button = document.getElementById("themeSwitch");
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+
+    const iconToggle = (dark) => {
+        if(dark){
+            sun.classList.add("hidden");
+            moon.classList.remove("hidden");
+            return;
+        }
+
+        moon.classList.add("hidden");
+        sun.classList.remove("hidden");
+    }
+
+    const theme = (() => {
+        if (localStorage.getItem("theme")) {
+            return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+        return "light";
+    })();
+
+    if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        iconToggle(false);
+    } else {
+        document.documentElement.classList.add("dark");
+        iconToggle(true)
+    }
+
+    window.localStorage.setItem("theme", theme);
+
+    const themeSwitch = () => {
+        if(document.documentElement.classList.contains("dark")){
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+            iconToggle(false);
+            return;
+        }
+
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        iconToggle(true);
+    }
+
+    button.addEventListener("click", () => {
+        themeSwitch();
+    })
+</script>
+                        
+                    </div>
+                </header>
+                <main class="mb-auto">
+    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div class="space-y-2 pt-6 pb-8 md:space-y-5">
+            <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+                <div data-value="Projects" id="hackedEffect">Projects</div>
+            </h1>
+            
+        </div>
+        <div class="container py-12">
+            <div class="-m-4 flex flex-wrap">
+                <div class="md p-4 md:w-1/2" style="max-width:544px">
+    <div class="h-full  overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700">
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoFrontend">
+            
+                        <img alt="Kyodo Frontend" src="/static/images/kyodo-frontend.png" class="object-cover object-center md:h-36 lg:h-48" width="544" height="306">
+                    
+        </a>
+        <div class="p-6">
+            <h2 class="mb-3 text-2xl font-bold leading-8 tracking-tight dark:text-gray-100">
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoFrontend">
+            Kyodo Frontend
+        </a>
+            </h2>
+            <p class="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">
+                My frontend project is a modern and
+        user-friendly chat app interface. It features a sleek design with real-time messaging, ensuring seamless communication. Users 
+        can create accounts, log in securely, and engage in private or group chats effortlessly. The interface also incorporates responsive 
+        layouts, providing an optimal experience across various devices. The project utilizes React.js for dynamic rendering and smooth interactions, while Mantine is 
+        employed for visually appealing styles. Emojis and file attachments add an element of fun and practicality to the messaging experience.
+            </p>
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoFrontend" class="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            
+                        Learn more &rarr;
+                    
+        </a>
+        </div>
+    </div>
+</div><div class="md p-4 md:w-1/2" style="max-width:544px">
+    <div class="h-full  overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700">
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoBackend">
+            
+                        <img alt="Kyodo Backend" src="/static/images/kyodo-backend.png" class="object-cover object-center md:h-36 lg:h-48" width="544" height="306">
+                    
+        </a>
+        <div class="p-6">
+            <h2 class="mb-3 text-2xl font-bold leading-8 tracking-tight dark:text-gray-100">
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoBackend">
+            Kyodo Backend
+        </a>
+            </h2>
+            <p class="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">
+                My backend for the chat app is powered by Express.js and GraphQL. It provides a robust
+        and efficient server-side architecture for handling real-time messaging and user interactions. The backend
+        facilitates seamless communication between clients, ensuring instant message delivery. With GraphQL,
+        data retrieval and manipulation become intuitive and efficient, enabling clients to request precisely
+        the data they need. The server is designed to handle authentication securely, allowing users to create accounts,
+        log in, and engage in private or group chats with confidence. The use of Express.js ensures a smooth and responsive server performance,
+        enhancing the overall user experience.
+            </p>
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/KyodoBackend" class="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            
+                        Learn more &rarr;
+                    
+        </a>
+        </div>
+    </div>
+</div><div class="md p-4 md:w-1/2" style="max-width:544px">
+    <div class="h-full  overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700">
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockServer">
+            
+                        <img alt="Deadlock Server" src="/static/images/3DG.png" class="object-cover object-center md:h-36 lg:h-48" width="544" height="306">
+                    
+        </a>
+        <div class="p-6">
+            <h2 class="mb-3 text-2xl font-bold leading-8 tracking-tight dark:text-gray-100">
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockServer">
+            Deadlock Server
+        </a>
+            </h2>
+            <p class="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">
+                In my Unity-built multiplayer FPS game, the server side takes the lead, overseeing matchmaking, player authentication,
+        and game state synchronization. It maintains fairness by managing player actions, positions, and scores. This foundation ensures a smooth
+        and enjoyable experience for all players.
+            </p>
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockServer" class="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            
+                        Learn more &rarr;
+                    
+        </a>
+        </div>
+    </div>
+</div><div class="md p-4 md:w-1/2" style="max-width:544px">
+    <div class="h-full  overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700">
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockClient">
+            
+                        <img alt="Deadlock Client" src="/static/images/3DG.png" class="object-cover object-center md:h-36 lg:h-48" width="544" height="306">
+                    
+        </a>
+        <div class="p-6">
+            <h2 class="mb-3 text-2xl font-bold leading-8 tracking-tight dark:text-gray-100">
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockClient">
+            Deadlock Client
+        </a>
+            </h2>
+            <p class="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">
+                As the player&#39;s window into my Unity multiplayer FPS game, the client side handles rendering, input processing,
+        and real-time updates. It collaborates with the server to deliver an immersive experience, from accurate aiming to displaying
+        vital game information like health and scores.
+            </p>
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok/DeadlockClient" class="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            
+                        Learn more &rarr;
+                    
+        </a>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</main>
+                <footer>
+    <div class="mt-16 flex flex-col items-center">
+        <div class="mb-3 flex space-x-4">
+            <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="mailto:daviddidenco84@gmail.com">
+            <span class="sr-only">mail</span>
+            <svg viewBox="0 0 20 20" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" astro-icon="social-icons/mail"><path d="M2.003 5.884 10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884z"/><path d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118z"/></svg>
+        </a>
+            <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok">
+            <span class="sr-only">github</span>
+            <svg viewBox="0 0 24 24" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" astro-icon="social-icons/github"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </a>
+            
+        </div>
+        <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <div>David</div>
+            <div> • </div>
+            <div>© 2023</div>
+            <div> • </div>
+            <a href="/">
+            Dav1d
+        </a>
+        </div>
+        
+    </div>
+</footer>
+            </div>
+        
+</div>
+    </body></html>

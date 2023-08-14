@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="canonical" href="https://estiknok.github.io/blog/upgrading-my-portfolio-to-nextjs13/">
+        <meta name="generator" content="Astro v2.10.3">
+
+        <!-- General Meta Tags -->
+        <title>Upgrading my Portfolio to Nextjs13</title>
+        <meta name="title" content="Upgrading my Portfolio to Nextjs13">
+        <meta name="description" content="In thi blog I detail the journey of upgrading my portfolio to Next.js 13 while transitioning tothe /app structure. The integration of an MDX-powered blog, facilitated by Contentlayer, enhanced my portfolio's deptheffortlessly. And many more problems which needed to be solved due to the big change in syntax.">
+        <meta name="author" content="david">
+        <link rel="sitemap" href="/sitemap-index.xml">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" content="Upgrading my Portfolio to Nextjs13">
+        <meta property="og:description" content="In thi blog I detail the journey of upgrading my portfolio to Next.js 13 while transitioning tothe /app structure. The integration of an MDX-powered blog, facilitated by Contentlayer, enhanced my portfolio's deptheffortlessly. And many more problems which needed to be solved due to the big change in syntax.">
+        <meta property="og:url" content="https://estiknok.github.io/blog/upgrading-my-portfolio-to-nextjs13/">
+        <meta property="og:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://estiknok.github.io/blog/upgrading-my-portfolio-to-nextjs13/">
+        <meta property="twitter:title" content="Upgrading my Portfolio to Nextjs13">
+        <meta property="twitter:description" content="In thi blog I detail the journey of upgrading my portfolio to Next.js 13 while transitioning tothe /app structure. The integration of an MDX-powered blog, facilitated by Contentlayer, enhanced my portfolio's deptheffortlessly. And many more problems which needed to be solved due to the big change in syntax.">
+        <meta property="twitter:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+
+        <!--Theme -->
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="/_astro/404.57a0ff2a.css" />
+<link rel="stylesheet" href="/_astro/index.299720e1.css" /><script type="module">const o=document.getElementById("scrollToTop"),l=document.getElementById("showScroll"),d=()=>{window.scrollY>50?(l.classList.remove("md:hidden"),l.classList.add("md:flex")):(l.classList.remove("md:flex"),l.classList.add("md:hidden"))},e=()=>{window.scrollTo({top:0})};window.addEventListener("scroll",()=>d());o.addEventListener("click",()=>{e()});
+</script></head>
+    <body class="dark:bg-neutral-900">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
+    
+            <div class="flex h-screen flex-col justify-between">
+                <header class="flex items-center justify-between py-10">
+                    <div>
+                        <a href="/">
+            
+                            <div class="flex items-center justify-between">
+                                <div class="mr-3">
+                                    <img src="/static/images/logo_small.png" alt="logo" width="69">
+                                </div>
+                                <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100">
+                                            Dav1d
+                                        </div>
+                            </div>
+                        
+        </a>
+                    </div>
+                    <div class="flex items-center text-base leading-5">
+                        <div class="hidden sm:block">
+                            <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Home
+        </a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Blog
+        </a><a href="/tags" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Tags
+        </a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+            Projects
+        </a>
+                        </div>
+                        <button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100">
+        <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+        <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+    </svg>
+</button>
+
+<script>
+    const button = document.getElementById("themeSwitch");
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+
+    const iconToggle = (dark) => {
+        if(dark){
+            sun.classList.add("hidden");
+            moon.classList.remove("hidden");
+            return;
+        }
+
+        moon.classList.add("hidden");
+        sun.classList.remove("hidden");
+    }
+
+    const theme = (() => {
+        if (localStorage.getItem("theme")) {
+            return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+        return "light";
+    })();
+
+    if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        iconToggle(false);
+    } else {
+        document.documentElement.classList.add("dark");
+        iconToggle(true)
+    }
+
+    window.localStorage.setItem("theme", theme);
+
+    const themeSwitch = () => {
+        if(document.documentElement.classList.contains("dark")){
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+            iconToggle(false);
+            return;
+        }
+
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        iconToggle(true);
+    }
+
+    button.addEventListener("click", () => {
+        themeSwitch();
+    })
+</script>
+                        
+                    </div>
+                </header>
+                <main class="mb-auto">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
+    
+        <div class="fixed bottom-8 right-8 hidden flex-col gap-3 md:hidden" id="showScroll">
+    <button aria-label="Scroll To Top" type="button" id="scrollToTop" class="rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600">
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"></path>
+        </svg>
+    </button>
+</div>
+        <article>
+            <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
+                <header class="pt-6 xl:pb-6">
+                    <div class="space-y-1 text-center">
+                        <dl class="space-y-10">
+                            <div>
+                                <dt class="sr-only">Published on</dt>
+                                <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
+                                    <time datetime="Tue Aug 08 2023">
+                                        Tuesday, August 8, 2023
+                                    </time>
+                                </dd>
+                            </div>
+                        </dl>
+                        <div>
+                            <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
+    Upgrading my Portfolio to Nextjs13
+</h1>
+                        </div>
+                    </div>
+                </header>
+                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0" style="grid-template-rows:auto 1fr">
+                    <dl class="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">
+                        <dt class="sr-only">Authors</dt>
+                        <dd>
+                            <ul class="flex justify-center space-x-8 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8">
+                                <li class="flex items-center space-x-2">
+                                                <img src="/static/images/avatar.jpg" width="38" height="38" alt="avatar" class="h-10 w-10 rounded-full">
+                                                <dl class="whitespace-nowrap text-sm font-medium leading-5">
+                                                    <dt class="sr-only">
+                                                        Name
+                                                    </dt>
+                                                    <dd class="text-gray-900 dark:text-gray-100">
+                                                        David
+                                                    </dd>
+                                                    <dt class="sr-only">
+                                                        Twitter
+                                                    </dt>
+                                                    <dd>
+                                                        <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/Twitter" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            @Twitter
+        </a>
+                                                    </dd>
+                                                </dl>
+                                            </li>
+                            </ul>
+                        </dd>
+                    </dl>
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
+                        <div class="prose max-w-none pb-8 pt-10 dark:prose-dark">
+                            <p><img src="/static/images/blog/Upgrading_my_portfolio/layout.jpg" alt="banner"></p>
+<h2 id="introduction"><a aria-hidden="true" tabindex="-1" href="#introduction"><span class="icon icon-link"></span></a>Introduction</h2>
+<p>Hey there, fellow developers and visitors! I’m excited to share my recent adventure of upgrading my portfolio from Next.js 12 to the shiny new Next.js 13. This journey wasn’t just about adopting the latest technology but also about reimagining my portfolio’s structure and adding a brand-new blog system using MDX. Join me as I walk you through the process, the challenges I faced, and the triumphs that emerged.</p>
+<h2 id="the-motivation-behind-the-upgrade"><a aria-hidden="true" tabindex="-1" href="#the-motivation-behind-the-upgrade"><span class="icon icon-link"></span></a>The Motivation Behind the Upgrade</h2>
+<p>A few months back, I stumbled upon the promising features of Next.js 13, from improved performance to snappy developer experience.</p>
+<p>Also one of the main factor of waiting to make the transition was to await the stable release of the <code>/app</code> directory. As it seemed to be an excellent choice for the project and also a good oppornity to learn new things.</p>
+<p>I knew it was time to embrace this upgrade and take advantage of the goodies it had to offer. Not to mention that the sooner I made the change to the newer version, the easier it would be to mantain the project in the latest version of Next.js.</p>
+<h2 id="considering-alternatives-astro-and-sveltekit"><a aria-hidden="true" tabindex="-1" href="#considering-alternatives-astro-and-sveltekit"><span class="icon icon-link"></span></a>Considering Alternatives: Astro and Sveltekit:</h2>
+<p>During my upgrade deliberations, I considered alternatives like <a href="https://astro.build">Astro</a> and <a href="https://kit.svelte.dev">Sveltekit</a>. Both offered intriguing possibilities, but my deep-rooted fondness for React and my solid grasp of it made me lean towards sticking with it. Moreover, as I delved into these alternatives, the potential hurdles of using Astro with dynamic routes gave me pause and reaffirmed my decision to proceed with Next.js, even thought transitioning to the newer version would not be easy, specially with the new <code>/app</code> directory.</p>
+<p>However, with Astro’s reported compatibility with React as an alternative template engine made me realize that if I were to recreate my portfolio today, I would probably use Astro. Not to mention its excellent performance. So do not be surprised if I make a post talking about it and trying it.</p>
+<p><img src="/static/images/blog/Upgrading_my_portfolio/astroWebsite.webp" alt="Astro"></p>
+<h2 id="restructuring-the-project"><a aria-hidden="true" tabindex="-1" href="#restructuring-the-project"><span class="icon icon-link"></span></a>Restructuring the Project</h2>
+<p>First order of business? Rethinking the project structure. I decided to bid farewell to the traditional <code>/pages</code> directory and welcome the <code>/app</code> structure with open arms. This new approach brought clarity to my codebase, making it easier to manage different sections of my portfolio without the clutter.</p>
+<p>However, the transition wasn’t without its share of challenges. Lot of code had to be changed as the new directory required a new structure of code, as well as implementing new things and removing others. So a lot had to be changed.</p>
+<h2 id="embracing-mdx-for-blogging"><a aria-hidden="true" tabindex="-1" href="#embracing-mdx-for-blogging"><span class="icon icon-link"></span></a>Embracing MDX for Blogging</h2>
+<p>Ah, the thrill of adding a blog section! I chose MDX for its magical combination of Markdown’s simplicity and React’s power, althought plain MD also works if it is needed. Setting it up was a journey of its own, from integrating MDX into my project to crafting my first blog post with rich interactive elements.</p>
+<p>And here’s where <a href="https://www.contentlayer.dev">Contentlayer</a> entered the scene, making the integration of MDX even more seamless. This nifty tool abstracted away much of the complex setup, allowing me to focus on creating engaging content without battling the intricacies of MDX integration, such as layouts, file structures and more. The blog instantly felt like an integral part of my portfolio, adding depth and context to my work.</p>
+<h2 id="transitioning-to-nextjs-13-new-syntax-challenges"><a aria-hidden="true" tabindex="-1" href="#transitioning-to-nextjs-13-new-syntax-challenges"><span class="icon icon-link"></span></a>Transitioning to Next.js 13: New Syntax Challenges</h2>
+<p>The upgrade to Next.js 13 wasn’t a walk in the park, mainly due to the syntax changes that had me scratching my head a few times. API routes, file extensions, server and client objects, and route configurations demanded a closer look and a fair share of trial and error.</p>
+<p>The Next.js documentation became my reliable companion during this phase, along with numerous Google searches and assistance from Stack Overflow. Remember, challenges are just opportunities to learn, and learn I did!</p>
+<p>Take as an example this old Nextjs 12 code of the blogs page:</p>
+<div class="remark-code-title">blog.ts</div>
+<pre class="language-js"><code is:raw="" class="language-js"><span class="token keyword">export</span> <span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">getStaticProps</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">getAllFilesFrontMatter</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">)</span>
+    <span class="token keyword">const</span> initialDisplayPosts <span class="token operator">=</span> posts<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">POSTS_PER_PAGE</span><span class="token punctuation">)</span>
+    <span class="token keyword">const</span> pagination <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">currentPage</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">totalPages</span><span class="token operator">:</span> Math<span class="token punctuation">.</span><span class="token function">ceil</span><span class="token punctuation">(</span>posts<span class="token punctuation">.</span>length <span class="token operator">/</span> <span class="token constant">POSTS_PER_PAGE</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token literal-property property">props</span><span class="token operator">:</span> <span class="token punctuation">{</span> initialDisplayPosts<span class="token punctuation">,</span> posts<span class="token punctuation">,</span> pagination <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">function</span> <span class="token function">Blog</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> posts<span class="token punctuation">,</span> initialDisplayPosts<span class="token punctuation">,</span> pagination <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+        <span class="token operator">&#x3C;</span><span class="token operator">></span>
+        <span class="token operator">&#x3C;</span>PageSEO title<span class="token operator">=</span><span class="token punctuation">{</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Blog - </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>siteMetadata<span class="token punctuation">.</span>author<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">}</span> description<span class="token operator">=</span><span class="token punctuation">{</span>siteMetadata<span class="token punctuation">.</span>description<span class="token punctuation">}</span> <span class="token operator">/</span><span class="token operator">></span>
+        <span class="token operator">&#x3C;</span>ListLayout
+            posts<span class="token operator">=</span><span class="token punctuation">{</span>posts<span class="token punctuation">}</span>
+            initialDisplayPosts<span class="token operator">=</span><span class="token punctuation">{</span>initialDisplayPosts<span class="token punctuation">}</span>
+            pagination<span class="token operator">=</span><span class="token punctuation">{</span>pagination<span class="token punctuation">}</span>
+            title<span class="token operator">=</span><span class="token string">"All Posts"</span>
+        <span class="token operator">/</span><span class="token operator">></span>
+        <span class="token operator">&#x3C;</span><span class="token operator">/</span><span class="token operator">></span>
+    <span class="token punctuation">)</span>
+<span class="token punctuation">}</span></code></pre>
+<p>An this is how it looks right now with Nextjs 13:</p>
+<div class="remark-code-title">page.tsx</div>
+<pre class="language-ts"><code is:raw="" class="language-ts"><span class="token keyword">export</span> <span class="token keyword">const</span> metadata <span class="token operator">=</span> <span class="token function">PageSEO</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    title<span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Blog - </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>siteMetadata<span class="token punctuation">.</span>author<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span>
+    description<span class="token operator">:</span> siteMetadata<span class="token punctuation">.</span>description<span class="token punctuation">,</span>
+    pathname<span class="token operator">:</span> <span class="token string">"/blog"</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">getStaticProps</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token function">sortedBlogPost</span><span class="token punctuation">(</span>allBlogs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> initialDisplayPosts <span class="token operator">=</span> posts<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">POSTS_PER_PAGE</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> pagination <span class="token operator">=</span> <span class="token punctuation">{</span>
+        currentPage<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        totalPages<span class="token operator">:</span> Math<span class="token punctuation">.</span><span class="token function">ceil</span><span class="token punctuation">(</span>posts<span class="token punctuation">.</span>length <span class="token operator">/</span> <span class="token constant">POSTS_PER_PAGE</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        props<span class="token operator">:</span> <span class="token punctuation">{</span>
+            initialDisplayPosts<span class="token operator">:</span> <span class="token function">allCoreContent</span><span class="token punctuation">(</span>initialDisplayPosts<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            posts<span class="token operator">:</span> <span class="token function">allCoreContent</span><span class="token punctuation">(</span>posts<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            pagination<span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">Blog</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token punctuation">{</span>
+        props<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token punctuation">{</span> props<span class="token operator">:</span> <span class="token punctuation">{</span> initialDisplayPosts<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">;</span> posts<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">;</span> pagination<span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span> <span class="token operator">=</span>
+        <span class="token keyword">await</span> <span class="token function">getStaticProps</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+        <span class="token operator">&#x3C;</span>ListLayout
+            posts<span class="token operator">=</span><span class="token punctuation">{</span>props<span class="token punctuation">.</span>posts<span class="token punctuation">}</span>
+            initialDisplayPosts<span class="token operator">=</span><span class="token punctuation">{</span>props<span class="token punctuation">.</span>initialDisplayPosts<span class="token punctuation">}</span>
+            pagination<span class="token operator">=</span><span class="token punctuation">{</span>props<span class="token punctuation">.</span>pagination<span class="token punctuation">}</span>
+            title<span class="token operator">=</span><span class="token string">"All Posts"</span>
+        <span class="token operator">/</span><span class="token operator">></span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Now, this might not seem like a huge change, and on its own, it is not. However, consider having to change dozens of little scripts like this one and make sure that everything works fine, then it is more complicated.</p>
+<h2 id="lessons-learned-and-takeaways"><a aria-hidden="true" tabindex="-1" href="#lessons-learned-and-takeaways"><span class="icon icon-link"></span></a>Lessons Learned and Takeaways</h2>
+<p>Looking back, this upgrade taught me a lot. It’s not just about the technology but also about resilience and curiosity. Adopting new paradigms takes time, patience, and a willingness to dive deep. The revamped structure brought a sense of order to my portfolio, and the blog infused it with personality. It was also my first time implementing a blog, so it was very amazing seeing in the end that it worked amazingly well.</p>
+<h2 id="conclusion"><a aria-hidden="true" tabindex="-1" href="#conclusion"><span class="icon icon-link"></span></a>Conclusion</h2>
+<p>And there you have it—my journey from Next.js 12 to 13, from <code>/pages</code> to <code>/app</code>, and from a simple portfolio to a dynamic one with a blog. It wasn’t just about lines of code; it was about evolution, growth, and embracing the unknown. I invite you to explore my upgraded portfolio, delve into the blog posts, and join me in celebrating the ever-evolving world of web development.</p>
+<p>If you’re currently on Next.js 12, I highly recommend considering the upgrade to version 13 to take advantage of its enhanced features and improvements, and do not forget to transition to the new <code>/app</code> directory, despite the many changes you will need to make it is worth it in the end.</p>
+                        </div>
+                        <div class="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">
+                            
+                        </div>
+                        
+                    </div>
+                    <footer>
+                        <div class="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">
+                            <div class="py-4 xl:py-8">
+                                        <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                            Tags
+                                        </h2>
+                                        <div class="flex flex-wrap">
+                                            <a href="/tags/nextjs" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            Nextjs
+        </a><a href="/tags/portfolio" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            Portfolio
+        </a>
+                                        </div>
+                                    </div>
+                            <div class="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8">
+                                        <div>
+                                                <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                                    Previous Article
+                                                </h2>
+                                                <div class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                                    <a href="/blog/making-a-multiplayer-fps-basic-movement">
+            Making a Multiplayer FPS: Basic Movement
+        </a>
+                                                </div>
+                                            </div>
+                                        
+                                    </div>
+                        </div>
+                        <div class="pt-4 xl:pt-8">
+                            <a href="/blog" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            
+                                &larr; Back to the blog
+                            
+        </a>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </article>
+    
+</div>
+</main>
+                <footer>
+    <div class="mt-16 flex flex-col items-center">
+        <div class="mb-3 flex space-x-4">
+            <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="mailto:daviddidenco84@gmail.com">
+            <span class="sr-only">mail</span>
+            <svg viewBox="0 0 20 20" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" astro-icon="social-icons/mail"><path d="M2.003 5.884 10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884z"/><path d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118z"/></svg>
+        </a>
+            <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok">
+            <span class="sr-only">github</span>
+            <svg viewBox="0 0 24 24" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" astro-icon="social-icons/github"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </a>
+            
+        </div>
+        <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <div>David</div>
+            <div> • </div>
+            <div>© 2023</div>
+            <div> • </div>
+            <a href="/">
+            Dav1d
+        </a>
+        </div>
+        
+    </div>
+</footer>
+            </div>
+        
+</div>
+    </body></html>
