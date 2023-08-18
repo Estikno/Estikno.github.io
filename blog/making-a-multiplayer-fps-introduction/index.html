@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <link rel="canonical" href="https://estiknok.github.io/blog/making-a-multiplayer-fps-introduction/">
         <meta name="generator" content="Astro v2.10.3">
+
+        <!--Icons -->
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="apple-touch-icon" type="image/png" href="/favicons/apple-touch-icon.png">
+        <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5">
 
         <!-- General Meta Tags -->
         <title>Making a Multiplayer FPS: Introduction</title>
@@ -18,43 +22,42 @@
         <meta property="og:title" content="Making a Multiplayer FPS: Introduction">
         <meta property="og:description" content="In this blog series, I'll be taking you through the thrilling process of creating my own online first-person shooter (FPS) game. As an avid FPS gamer, I've chosen Unity as my game engine and the &#34;Riptide&#34; multiplayer library to ensure a smooth multiplayer experience.">
         <meta property="og:url" content="https://estiknok.github.io/blog/making-a-multiplayer-fps-introduction/">
-        <meta property="og:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+        <meta property="og:image" content="https://estiknok.github.io/src/assets/twitter-card.png">
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image">
         <meta property="twitter:url" content="https://estiknok.github.io/blog/making-a-multiplayer-fps-introduction/">
         <meta property="twitter:title" content="Making a Multiplayer FPS: Introduction">
         <meta property="twitter:description" content="In this blog series, I'll be taking you through the thrilling process of creating my own online first-person shooter (FPS) game. As an avid FPS gamer, I've chosen Unity as my game engine and the &#34;Riptide&#34; multiplayer library to ensure a smooth multiplayer experience.">
-        <meta property="twitter:image" content="https://estiknok.github.io/static/images/twitter-card.png">
+        <meta property="twitter:image" content="https://estiknok.github.io/src/assets/twitter-card.png">
 
         <!--Theme -->
         <meta name="msapplication-TileColor" content="#000000">
         <meta name="theme-color" content="#000000">
-    <link rel="stylesheet" href="/_astro/404.57a0ff2a.css" />
-<link rel="stylesheet" href="/_astro/index.299720e1.css" /><script type="module">const o=document.getElementById("scrollToTop"),l=document.getElementById("showScroll"),d=()=>{window.scrollY>50?(l.classList.remove("md:hidden"),l.classList.add("md:flex")):(l.classList.remove("md:flex"),l.classList.add("md:hidden"))},e=()=>{window.scrollTo({top:0})};window.addEventListener("scroll",()=>d());o.addEventListener("click",()=>{e()});
-</script></head>
+    <link rel="stylesheet" href="/_astro/404.bb48ca46.css" />
+<link rel="stylesheet" href="/_astro/index.eaf13eb7.css" /><script type="module" src="/_astro/hoisted.13beaee5.js"></script></head>
     <body class="dark:bg-neutral-900">
         <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
     
             <div class="flex h-screen flex-col justify-between">
                 <header class="flex items-center justify-between py-10">
-                    <div>
-                        <a href="/">
+    <div>
+        <a href="/">
             
-                            <div class="flex items-center justify-between">
-                                <div class="mr-3">
-                                    <img src="/static/images/logo_small.png" alt="logo" width="69">
-                                </div>
-                                <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100">
-                                            Dav1d
-                                        </div>
-                            </div>
-                        
+            <div class="flex items-center justify-between">
+                <div class="mr-3">
+                    <img src="/_astro/logo_small.8e355b7c_1yLtn3.webp" alt="logo" width="69" height="67" loading="lazy" decoding="async">
+                </div>
+                <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100">
+                            Dav1d
+                        </div>
+            </div>
+        
         </a>
-                    </div>
-                    <div class="flex items-center text-base leading-5">
-                        <div class="hidden sm:block">
-                            <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
+    </div>
+    <div class="flex items-center text-base leading-5">
+        <div class="hidden sm:block">
+            <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
             Home
         </a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
             Blog
@@ -63,8 +66,8 @@
         </a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
             Projects
         </a>
-                        </div>
-                        <button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch">
+        </div>
+        <button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100">
         <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
         <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
@@ -124,9 +127,43 @@
         themeSwitch();
     })
 </script>
-                        
+        <div>
+    <button aria-label="Toggle Menu" class="sm:hidden hamburger-menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100 h-8 w-8">
+            <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
+        </svg>
+    </button>
+    <div class="fixed left-0 top-0 z-10 h-full w-full transform opacity-95 dark:opacity-[0.98] bg-white duration-300 ease-in-out dark:bg-gray-950 translate-x-full" id="menuNav">
+        <div class="flex justify-end">
+            <button class="mr-8 mt-11 h-8 w-8 hamburger-menu" aria-label="Toggle Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100">
+                    <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path>
+                </svg>
+            </button>
+        </div>
+        <nav class="fixed mt-8 h-full">
+            <div class="px-12 py-4">
+                        <a href="/" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">
+            Home
+        </a>
+                    </div><div class="px-12 py-4">
+                        <a href="/blog" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">
+            Blog
+        </a>
+                    </div><div class="px-12 py-4">
+                        <a href="/tags" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">
+            Tags
+        </a>
+                    </div><div class="px-12 py-4">
+                        <a href="/projects" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">
+            Projects
+        </a>
                     </div>
-                </header>
+        </nav>
+    </div>
+</div>
+    </div>
+</header>
                 <main class="mb-auto">
     <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
     
@@ -164,7 +201,7 @@
                         <dd>
                             <ul class="flex justify-center space-x-8 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8">
                                 <li class="flex items-center space-x-2">
-                                                <img src="/static/images/avatar.jpg" width="38" height="38" alt="avatar" class="h-10 w-10 rounded-full">
+                                                <img src="/src/assets/avatar.webp" width="38" height="38" alt="avatar" class="h-10 w-10 rounded-full">
                                                 <dl class="whitespace-nowrap text-sm font-medium leading-5">
                                                     <dt class="sr-only">
                                                         Name
@@ -176,8 +213,8 @@
                                                         Twitter
                                                     </dt>
                                                     <dd>
-                                                        <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/Twitter" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
-            @Twitter
+                                                        <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estiknok" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+            @Estiknok
         </a>
                                                     </dd>
                                                 </dl>
@@ -187,7 +224,7 @@
                     </dl>
                     <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
                         <div class="prose max-w-none pb-8 pt-10 dark:prose-dark">
-                            <p><img src="/static/images/blog/Making_a_multiplayer_fps/1/layout.jpg" alt="banner"></p>
+                            <p><img alt="banner"  src="/_astro/layout.80a0f8bf_2r8b8k.webp" width="1536" height="864" loading="lazy" decoding="async"></p>
 <h2 id="introduction"><a aria-hidden="true" tabindex="-1" href="#introduction"><span class="icon icon-link"></span></a>Introduction</h2>
 <p>Welcome to the first installment of my blog series, where I’ll take you on an exciting journey through the creation of my very own online first-person shooter (FPS) game! As an avid gamer and a huge fan of FPS games, I’ve always been captivated by games such as CSGO, Valorant, Call of Duty, etc. Now, I’ve decided to embark on a new adventure - building my own FPS game from scratch.</p>
 <h2 id="choosing-unity-as-the-game-engine"><a aria-hidden="true" tabindex="-1" href="#choosing-unity-as-the-game-engine"><span class="icon icon-link"></span></a>Choosing Unity as the Game Engine:</h2>
@@ -196,7 +233,7 @@
 <p>For the multiplayer aspect of my FPS game, I’ll be utilizing a new library called <a href="https://riptide.tomweiland.net">Riptide</a>, developed by the talented <a href="https://tomweiland.net">Tom Weilland</a>. This library is designed to be used in multiplayer games as well as other applications using .NET. The library gives you a low level control of the network stuff withouth making you write the code for the most basic and frustrating things such as connections and its different protocols, handling messages and much more.</p>
 <h2 id="connection-between-server-and-clients"><a aria-hidden="true" tabindex="-1" href="#connection-between-server-and-clients"><span class="icon icon-link"></span></a>Connection Between Server and Clients:</h2>
 <p>One of the foundational elements that I’ve already set up is the connection between the server and clients. Ensuring a stable and reliable network architecture is crucial for delivering an enjoyable online gaming experience. With Riptide’s support and Unity’s networking capabilities, I’ve established the groundwork for a robust communication system that will handle player interactions and data synchronization.</p>
-<p><img src="/static/images/blog/Making_a_multiplayer_fps/1/connection.jpg" alt="connection"></p>
+<p><img alt="connection"  src="/_astro/connection.7a9c5e11_Z29HPAy.webp" width="1920" height="977" loading="lazy" decoding="async"></p>
 <h2 id="what-to-expect-in-this-blog-series"><a aria-hidden="true" tabindex="-1" href="#what-to-expect-in-this-blog-series"><span class="icon icon-link"></span></a>What to Expect in This Blog Series:</h2>
 <p>Throughout this blog series, I’ll be sharing every step of my game development process. From the initial concept and design phase to coding, artwork, level creation, playtesting, and debugging - you’ll witness the challenges and triumphs of my journey. I’ll also document the lessons I learn, the resources I find invaluable, and any tips and tricks that could be useful for fellow aspiring game developers.</p>
 <p>It is important to understand that this series is <code>not a tutorial one</code>. However you will see how it is to work behind a project like this one.</p>

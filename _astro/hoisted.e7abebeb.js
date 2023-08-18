@@ -1,0 +1,1 @@
+import"./hoisted.66cdba52.js";const l="ABCDEFGHIJKLMNOPQRSTUVWXYZ";let r=null;document.getElementById("hackedEffect").onmouseover=t=>{let e=0;clearInterval(r),r=setInterval(()=>{t.target.innerText=t.target.innerText.split("").map((n,a)=>a<e?t.target.dataset.value[a]:l[Math.floor(Math.random()*26)]).join(""),e>=t.target.dataset.value.length&&clearInterval(r),e+=1/3},30)};

@@ -1,1 +1,0 @@
-import"./hoisted.5c5ff275.js";const r=document.getElementById("logo"),m=r.querySelectorAll("img"),g=()=>document.body.dataset.active==="true",d=(e,t,n,o)=>{const a=g(),c=a?24:4,s=c*(t+1),i=`${s*n}% ${s*o}%`,l=a?1+t*.4:1;e.animate({translate:i,scale:l},{duration:750,fill:"forwards",easing:"ease"})},u=(e,t,n)=>e.forEach((o,a)=>d(o,a,t,n));u(m,1.2,-.5);

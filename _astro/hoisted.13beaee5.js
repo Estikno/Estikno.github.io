@@ -1,0 +1,1 @@
+import"./hoisted.66cdba52.js";const o=document.getElementById("scrollToTop"),l=document.getElementById("showScroll"),d=()=>{window.scrollY>50?(l.classList.remove("md:hidden"),l.classList.add("md:flex")):(l.classList.remove("md:flex"),l.classList.add("md:hidden"))},e=()=>{window.scrollTo({top:0})};window.addEventListener("scroll",()=>d());o.addEventListener("click",()=>{e()});
