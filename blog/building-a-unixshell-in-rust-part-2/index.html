@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en-us"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="canonical" href="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-2/"><meta name="generator" content="Astro v4.2.6"><!--Icons --><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" type="image/png" href="/favicons/apple-touch-icon.png"><link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5"><!-- General Meta Tags --><title>Building a Unix-shell in Rust - Part 2</title><meta name="title" content="Building a Unix-shell in Rust - Part 2"><meta name="description" content="In this second part of the series on building a Unix shell in Rust, we dive into the essential steps of reading user input, parsing it into commands, and classifying those commands for execution."><meta name="author" content="david"><link rel="sitemap" href="/sitemap-index.xml"><!-- Open Graph / Facebook --><meta property="og:title" content="Building a Unix-shell in Rust - Part 2"><meta property="og:description" content="In this second part of the series on building a Unix shell in Rust, we dive into the essential steps of reading user input, parsing it into commands, and classifying those commands for execution."><meta property="og:url" content="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-2/"><meta property="og:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-2/"><meta property="twitter:title" content="Building a Unix-shell in Rust - Part 2"><meta property="twitter:description" content="In this second part of the series on building a Unix shell in Rust, we dive into the essential steps of reading user input, parsing it into commands, and classifying those commands for execution."><meta property="twitter:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!--Theme --><meta name="msapplication-TileColor" content="#000000"><meta name="theme-color" content="#000000"><link rel="stylesheet" href="/_astro/_slug_.vBDuTFbJ.css" />
+<link rel="stylesheet" href="/_astro/index.rHYGQDjY.css" /><script type="module" src="/_astro/hoisted.oWag_usr.js"></script></head> <body class="dark:bg-neutral-900"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="flex h-screen flex-col justify-between"> <header class="flex items-center justify-between py-10"> <!--Left part of the navbar (Icon and name) --> <div> <a href="/"> <div class="flex items-center justify-between"> <div class="mr-3"> <img src="/_astro/logo_small.CNWsemSi_ZgIJL2.webp" alt="logo" width="69" height="67" loading="lazy" decoding="async"> </div> <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100"> David </div> </div> </a> </div> <!--Right part of the navbar with all the links --> <div class="flex items-center text-base leading-5"> <div class="hidden sm:block"> <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Home</a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Blog</a><a href="/tags" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Tags</a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Projects</a> </div> <!--Some other options like the theme switch and the mobile navbar hidden --> <!--Theme's button --><button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path> <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path> </svg> </button> <script>
+    //Theme switch logic
+
+    //Gets all elements
+    const button = document.getElementById("themeSwitch");
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+
+    //A function that sets the icon's properties given the current theme theme (dark, light)
+    const iconToggle = (dark) => {
+        if(dark){
+            sun.classList.add("hidden");
+            moon.classList.remove("hidden");
+            return;
+        }
+
+        moon.classList.add("hidden");
+        sun.classList.remove("hidden");
+    }
+
+    //Sees if the theme has already been set
+    const theme = (() => {
+        //If the theme is the localstorage returns that
+        if (localStorage.getItem("theme")) {
+            return localStorage.getItem("theme");
+        }
+
+        //If not checks the css property related to the theme
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+
+        //If there is nothing set returns light
+        return "light";
+    })();
+
+    //Sets the current icon with the theme variable from before
+    if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        iconToggle(false);
+    } else {
+        document.documentElement.classList.add("dark");
+        iconToggle(true)
+    }
+
+    //Sets the current theme in the localstorage for later retrieving
+    window.localStorage.setItem("theme", theme);
+
+    //This function is in charge of changing the theme when the theme switch is pressed
+    const themeSwitch = () => {
+        if(document.documentElement.classList.contains("dark")){
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+            iconToggle(false);
+            return;
+        }
+
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        iconToggle(true);
+    }
+
+    //Sets the previos function to excecute when he switch is clicked
+    button.addEventListener("click", () => {
+        themeSwitch();
+    })
+</script> <div> <!--Open button --> <button aria-label="Toggle Menu" class="sm:hidden hamburger-menu" aria-expanded="false"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100 h-8 w-8"> <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path> </svg> </button> <!--Displayable navbar --> <div class="fixed left-0 top-0 z-10 h-full w-full transform opacity-95 dark:opacity-[0.98] bg-white duration-300 ease-in-out dark:bg-gray-950 translate-x-full" id="menuNav"> <!--Close button --> <div class="flex justify-end"> <button class="mr-8 mt-11 h-8 w-8 hamburger-menu" aria-label="Toggle Menu"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path> </svg> </button> </div> <!--All links --> <nav class="fixed mt-8 h-full"> <div class="px-12 py-4"> <a href="/" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Home</a> </div><div class="px-12 py-4"> <a href="/blog" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Blog</a> </div><div class="px-12 py-4"> <a href="/tags" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Tags</a> </div><div class="px-12 py-4"> <a href="/projects" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Projects</a> </div> </nav> </div> </div>  </div> </header> <main class="mb-auto"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="fixed bottom-8 right-8 hidden flex-col gap-3 md:hidden" id="showScroll"> <button aria-label="Scroll To Top" type="button" id="scrollToTop" class="rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"> <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"> <path d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"></path> </svg> </button> </div>  <article> <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700"> <header class="pt-6 xl:pb-6"> <div class="space-y-1 text-center"> <dl class="space-y-10"> <div> <dt class="sr-only">Published on</dt> <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"> <time datetime="Sat Jul 27 2024"> Saturday, July 27, 2024 </time> </dd> </div> </dl> <div> <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14"> Building a Unix-shell in Rust - Part 2 </h1> </div> </div> </header> <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0" style="grid-template-rows:auto 1fr"> <dl class="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700"> <dt class="sr-only">Authors</dt> <dd> <ul class="flex justify-center space-x-8 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8"> <li class="flex items-center space-x-2"> <img src="/_astro/avatar.L70rEw0e_ZiYUwP.webp" alt="avatar" class="h-10 w-10 rounded-full" width="38" height="38" loading="lazy" decoding="async"> <dl class="whitespace-nowrap text-sm font-medium leading-5"> <dt class="sr-only">
+Name
+</dt> <dd class="text-gray-900 dark:text-gray-100"> David </dd> <dt class="sr-only">
+Twitter
+</dt> <dd> <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">@Estikno</a> </dd> </dl> </li> </ul> </dd> </dl> <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0"> <div class="prose max-w-none pb-8 pt-10 dark:prose-dark"> <p><img  src="/_astro/banner_2.R-Vuuew__1BKq5i.webp" alt="banner" width="2560" height="1440" loading="lazy" decoding="async"></p>
+<p>In the first post of this series, we laid the groundwork by discussing what a shell is and how it works. If you missed it, I suggest starting from there to get the full picture. Now, let’s dive into the next steps: reading user input, parsing that input into commands, and classifying those commands to execute the appropriate actions.</p>
+<h2 id="reading-user-input"><a aria-hidden="true" tabindex="-1" href="#reading-user-input"><span class="icon icon-link"></span></a>Reading User Input</h2>
+<p>To start, we need our shell to read user input. This is the first step in our REPL (Read-Eval-Print-Loop) process. Here’s how we can achieve this in Rust:</p>
+<pre class="language-rust"><code is:raw="" class="language-rust"><span class="token keyword">use</span> <span class="token namespace">std<span class="token punctuation">::</span>io<span class="token punctuation">::</span></span><span class="token punctuation">{</span>stdin<span class="token punctuation">,</span> stdout<span class="token punctuation">,</span> <span class="token class-name">Write</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> <span class="token namespace">anyhow<span class="token punctuation">::</span></span><span class="token class-name">Result</span><span class="token punctuation">;</span>
+
+<span class="token keyword">fn</span> <span class="token function-definition function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">-></span> <span class="token class-name">Result</span><span class="token operator">&#x3C;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">loop</span> <span class="token punctuation">{</span>
+        <span class="token comment">// use the `>` character as the prompt</span>
+        <span class="token comment">// need to explicitly flush this to ensure it prints before read_line</span>
+        <span class="token macro property">print!</span><span class="token punctuation">(</span><span class="token string">"> "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">stdout</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">?</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">let</span> <span class="token keyword">mut</span> input <span class="token operator">=</span> <span class="token class-name">String</span><span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">stdin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">read_line</span><span class="token punctuation">(</span><span class="token operator">&#x26;</span><span class="token keyword">mut</span> input<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">Ok</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="breaking-it-down"><a aria-hidden="true" tabindex="-1" href="#breaking-it-down"><span class="icon icon-link"></span></a>Breaking It Down</h3>
+<ol>
+<li>
+<p><strong>Prompting the User:</strong> We use the <code>></code> character as the prompt. This signals to the user that the shell is ready for input.</p>
+</li>
+<li>
+<p><strong>Flushing stdout:</strong> <code>stdout().flush()?;</code> ensures that the prompt is printed immediately, not buffered. This is crucial for a good user experience.</p>
+</li>
+<li>
+<p><strong>Reading Input:</strong> We read the user input into a mutable <code>String</code> variable called <code>input</code> using <code>stdin().read_line(&#x26;mut input).unwrap();</code>. Even though this aproach of reading the user input is very bare bones, as the user cannot edit it while typing, not having the command history, etc. It is sufficient for now and it will be expanded in the future.</p>
+</li>
+</ol>
+<p>By this point, we can display a prompt and capture user input. Let’s move on to parsing this input.</p>
+<h2 id="parsing-the-input-into-commands"><a aria-hidden="true" tabindex="-1" href="#parsing-the-input-into-commands"><span class="icon icon-link"></span></a>Parsing the Input into Commands</h2>
+<p>Once we have the user input, we need to parse it into a command and its arguments. This helps us determine what action to take.</p>
+<p>First, we trim the input using <code>input.trim()</code>, which removes any leading or trailing whitespace from the input string. Next, we split the input using <code>split_ascii_whitespace()</code>, which splits the input into an iterator of substrings separated by ASCII whitespace. To extract the command, we use <code>parts.next()</code>, which retrieves the first substring. If there’s no command (empty input), the loop continues. Finally, we extract the arguments by capturing the remaining substrings as the command’s arguments with <code>let args = parts;</code>.</p>
+<p>Here is the code that does this process:</p>
+<pre class="language-rust"><code is:raw="" class="language-rust"><span class="token keyword">let</span> <span class="token keyword">mut</span> parts <span class="token operator">=</span> input<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">split_ascii_whitespace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> command<span class="token punctuation">;</span>
+
+<span class="token keyword">match</span> parts<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token class-name">Some</span><span class="token punctuation">(</span>com<span class="token punctuation">)</span> <span class="token operator">=></span> command <span class="token operator">=</span> com<span class="token punctuation">,</span>
+    <span class="token class-name">None</span> <span class="token operator">=></span> <span class="token keyword">continue</span><span class="token punctuation">,</span>  <span class="token comment">// continue if no command provided</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">let</span> args <span class="token operator">=</span> parts<span class="token punctuation">;</span></code></pre>
+<h2 id="classifying-commands"><a aria-hidden="true" tabindex="-1" href="#classifying-commands"><span class="icon icon-link"></span></a>Classifying Commands</h2>
+<p>With the command and arguments parsed, we need to classify and handle them appropriately.</p>
+<p>To do this, we pass the command into a match block and check if it matches a built-in command. If it doesn’t, we assume the command is external and execute it. If it turns out not to be a correct command, we display an error message and restart the loop.</p>
+<pre class="language-rust"><code is:raw="" class="language-rust"><span class="token keyword">match</span> command <span class="token punctuation">{</span>
+    <span class="token string">"cd"</span> <span class="token operator">=></span> <span class="token function">cd</span><span class="token punctuation">(</span>args<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token string">"exit"</span> <span class="token operator">=></span> <span class="token keyword">break</span><span class="token punctuation">,</span>
+    command <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> child <span class="token operator">=</span> <span class="token class-name">Command</span><span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>command<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">args</span><span class="token punctuation">(</span>args<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">spawn</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">match</span> child <span class="token punctuation">{</span>
+            <span class="token class-name">Ok</span><span class="token punctuation">(</span><span class="token keyword">mut</span> child<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span> child<span class="token punctuation">.</span><span class="token function">wait</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">?</span><span class="token punctuation">;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token class-name">Err</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token macro property">eprintln!</span><span class="token punctuation">(</span><span class="token string">"{}"</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>For external commands, <code>Command::new(command).args(args).spawn()</code> tries to execute them. If the command executes successfully, <code>child.wait()?</code> waits for it to finish.</p>
+<p>If the command is a built-in one, it is necessary to create a function that implements its functionality and call it with the arguments as parameters, like the <code>cd</code> function in the code above.</p>
+<h2 id="conclusion"><a aria-hidden="true" tabindex="-1" href="#conclusion"><span class="icon icon-link"></span></a>Conclusion</h2>
+<p>We’ve covered a lot in this post, from reading user input to parsing it into commands and arguments, and finally classifying and executing those commands. Our shell is taking shape, and we now have a basic REPL loop that can handle both built-in and external commands.</p>
+<p>In the next post, we’ll dive deeper into implementing more built-in commands and improving the user experience. Stay tuned, and happy coding!</p>
+<h2 id="next-steps"><a aria-hidden="true" tabindex="-1" href="#next-steps"><span class="icon icon-link"></span></a>Next Steps</h2>
+<p>In the next post, we’ll focus on refactoring the code to improve readability, maintainability, and extend functionality. Stay tuned!</p> </div> <div class="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">  </div>  </div> <footer> <div class="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y"> <div class="py-4 xl:py-8"> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Tags
+</h2> <div class="flex flex-wrap"> <a href="/tags/rust" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">rust</a> </div> </div> <div class="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8"> <div> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Previous Article
+</h2> <div class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"> <a href="/blog/building-a-unixshell-in-rust-part-1">Building a Unix-shell in Rust - Part 1</a> </div> </div>  </div> </div> <div class="pt-4 xl:pt-8"> <a href="/blog" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+&larr; Back to the blog
+</a> </div> </footer> </div> </div> </article>  </div> </main> <footer> <div class="mt-16 flex flex-col items-center"> <!--Social icons --> <div class="mb-3 flex space-x-4"> <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="mailto:daviddidenco84@gmail.com"><span class="sr-only">mail</span><svg width="20" height="20" viewBox="0 0 20 20" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" data-icon="social-icons/mail">  <symbol id="ai:local:social-icons/mail"><path fill="currentColor" d="M2.003 5.884 10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884z"/><path fill="currentColor" d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118z"/></symbol> <use  xlink:href="#ai:local:social-icons/mail"></use> </svg></a> <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno"><span class="sr-only">github</span><svg width="24" height="24" viewBox="0 0 24 24" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" data-icon="social-icons/github">  <symbol id="ai:local:social-icons/github"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol> <use  xlink:href="#ai:local:social-icons/github"></use> </svg></a>  </div> <!--Little text at the bottom --> <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400"> <div>David</div> <div> • </div> <div>© 2024</div> <div> • </div> <a href="/">David</a> </div> </div> </footer> </div>  </div> </body></html>
