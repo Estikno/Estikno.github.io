@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en-us"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="canonical" href="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-4/"><meta name="generator" content="Astro v4.2.6"><!--Icons --><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" type="image/png" href="/favicons/apple-touch-icon.png"><link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5"><!-- General Meta Tags --><title>Building a Unix-shell in Rust - Part 4</title><meta name="title" content="Building a Unix-shell in Rust - Part 4"><meta name="description" content="In this post, we switched from Termion to Rustyline, added command history, implemented an init script, and created an installation script, enhancing our Rust shell's usability and functionality."><meta name="author" content="david"><link rel="sitemap" href="/sitemap-index.xml"><!-- Open Graph / Facebook --><meta property="og:title" content="Building a Unix-shell in Rust - Part 4"><meta property="og:description" content="In this post, we switched from Termion to Rustyline, added command history, implemented an init script, and created an installation script, enhancing our Rust shell's usability and functionality."><meta property="og:url" content="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-4/"><meta property="og:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://estikno.github.io/blog/building-a-unixshell-in-rust-part-4/"><meta property="twitter:title" content="Building a Unix-shell in Rust - Part 4"><meta property="twitter:description" content="In this post, we switched from Termion to Rustyline, added command history, implemented an init script, and created an installation script, enhancing our Rust shell's usability and functionality."><meta property="twitter:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!--Theme --><meta name="msapplication-TileColor" content="#000000"><meta name="theme-color" content="#000000"><link rel="stylesheet" href="/_astro/_slug_.vBDuTFbJ.css" />
+<link rel="stylesheet" href="/_astro/index.rHYGQDjY.css" /><script type="module" src="/_astro/hoisted.oWag_usr.js"></script></head> <body class="dark:bg-neutral-900"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="flex h-screen flex-col justify-between"> <header class="flex items-center justify-between py-10"> <!--Left part of the navbar (Icon and name) --> <div> <a href="/"> <div class="flex items-center justify-between"> <div class="mr-3"> <img src="/_astro/logo_small.CNWsemSi_ZgIJL2.webp" alt="logo" width="69" height="67" loading="lazy" decoding="async"> </div> <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100"> David </div> </div> </a> </div> <!--Right part of the navbar with all the links --> <div class="flex items-center text-base leading-5"> <div class="hidden sm:block"> <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Home</a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Blog</a><a href="/tags" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Tags</a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Projects</a> </div> <!--Some other options like the theme switch and the mobile navbar hidden --> <!--Theme's button --><button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path> <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path> </svg> </button> <script>
+    //Theme switch logic
+
+    //Gets all elements
+    const button = document.getElementById("themeSwitch");
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+
+    //A function that sets the icon's properties given the current theme theme (dark, light)
+    const iconToggle = (dark) => {
+        if(dark){
+            sun.classList.add("hidden");
+            moon.classList.remove("hidden");
+            return;
+        }
+
+        moon.classList.add("hidden");
+        sun.classList.remove("hidden");
+    }
+
+    //Sees if the theme has already been set
+    const theme = (() => {
+        //If the theme is the localstorage returns that
+        if (localStorage.getItem("theme")) {
+            return localStorage.getItem("theme");
+        }
+
+        //If not checks the css property related to the theme
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+
+        //If there is nothing set returns light
+        return "light";
+    })();
+
+    //Sets the current icon with the theme variable from before
+    if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        iconToggle(false);
+    } else {
+        document.documentElement.classList.add("dark");
+        iconToggle(true)
+    }
+
+    //Sets the current theme in the localstorage for later retrieving
+    window.localStorage.setItem("theme", theme);
+
+    //This function is in charge of changing the theme when the theme switch is pressed
+    const themeSwitch = () => {
+        if(document.documentElement.classList.contains("dark")){
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+            iconToggle(false);
+            return;
+        }
+
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        iconToggle(true);
+    }
+
+    //Sets the previos function to excecute when he switch is clicked
+    button.addEventListener("click", () => {
+        themeSwitch();
+    })
+</script> <div> <!--Open button --> <button aria-label="Toggle Menu" class="sm:hidden hamburger-menu" aria-expanded="false"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100 h-8 w-8"> <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path> </svg> </button> <!--Displayable navbar --> <div class="fixed left-0 top-0 z-10 h-full w-full transform opacity-95 dark:opacity-[0.98] bg-white duration-300 ease-in-out dark:bg-gray-950 translate-x-full" id="menuNav"> <!--Close button --> <div class="flex justify-end"> <button class="mr-8 mt-11 h-8 w-8 hamburger-menu" aria-label="Toggle Menu"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path> </svg> </button> </div> <!--All links --> <nav class="fixed mt-8 h-full"> <div class="px-12 py-4"> <a href="/" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Home</a> </div><div class="px-12 py-4"> <a href="/blog" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Blog</a> </div><div class="px-12 py-4"> <a href="/tags" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Tags</a> </div><div class="px-12 py-4"> <a href="/projects" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Projects</a> </div> </nav> </div> </div>  </div> </header> <main class="mb-auto"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="fixed bottom-8 right-8 hidden flex-col gap-3 md:hidden" id="showScroll"> <button aria-label="Scroll To Top" type="button" id="scrollToTop" class="rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"> <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"> <path d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"></path> </svg> </button> </div>  <article> <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700"> <header class="pt-6 xl:pb-6"> <div class="space-y-1 text-center"> <dl class="space-y-10"> <div> <dt class="sr-only">Published on</dt> <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"> <time datetime="Mon Aug 05 2024"> Monday, August 5, 2024 </time> </dd> </div> </dl> <div> <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14"> Building a Unix-shell in Rust - Part 4 </h1> </div> </div> </header> <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0" style="grid-template-rows:auto 1fr"> <dl class="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700"> <dt class="sr-only">Authors</dt> <dd> <ul class="flex justify-center space-x-8 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8"> <li class="flex items-center space-x-2"> <img src="/_astro/avatar.L70rEw0e_ZiYUwP.webp" alt="avatar" class="h-10 w-10 rounded-full" width="38" height="38" loading="lazy" decoding="async"> <dl class="whitespace-nowrap text-sm font-medium leading-5"> <dt class="sr-only">
+Name
+</dt> <dd class="text-gray-900 dark:text-gray-100"> David </dd> <dt class="sr-only">
+Twitter
+</dt> <dd> <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">@Estikno</a> </dd> </dl> </li> </ul> </dd> </dl> <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0"> <div class="prose max-w-none pb-8 pt-10 dark:prose-dark"> <p><img  src="/_astro/banner_4.UR6Nitxz_2hGRHe.webp" alt="banner" width="5616" height="3744" loading="lazy" decoding="async"></p>
+<p>In the last post, we tackled formatting code, organizing files, handling errors, adding pipes, and using Termion for input. This time, we’ll be discussing the switch from Termion to Rustyline, adding a command history feature, implementing an init script, and creating an installation script. Let’s dive in!</p>
+<h2 id="changed-from-termion-to-rustyline"><a aria-hidden="true" tabindex="-1" href="#changed-from-termion-to-rustyline"><span class="icon icon-link"></span></a>Changed from Termion to Rustyline</h2>
+<p>Given the difficulties with <strong>Termion</strong> and since I don’t need to create a complex terminal layout, I decided to switch to <strong>Rustyline</strong>. This crate allows you to do simple things like letting the user edit the input, having a customizable prompt, command history, and other technical features.</p>
+<p>This change was not only beneficial in terms of UI and features but also in performance and code readability. Instead of configuring the terminal layout from scratch, which is great for complex layouts, Rustyline provides a basic layout and events you can listen to before receiving the input, something the standard library lacks.</p>
+<p>Here is the <code>read_input</code> function implemented with Rustyline. It’s much simpler and more readable than with Termion:</p>
+<div class="remark-code-title">prompt.rs</div>
+<pre class="language-rust"><code is:raw="" class="language-rust"><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function-definition function">read_input</span><span class="token punctuation">(</span>rl<span class="token punctuation">:</span> <span class="token operator">&#x26;</span><span class="token keyword">mut</span> <span class="token class-name">Editor</span><span class="token operator">&#x3C;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token namespace">rustyline<span class="token punctuation">::</span>history<span class="token punctuation">::</span></span><span class="token class-name">FileHistory</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">-></span> <span class="token class-name">Option</span><span class="token operator">&#x3C;</span><span class="token class-name">String</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token comment">// Read user input from the console using the rustyline library</span>
+    <span class="token keyword">match</span> rl<span class="token punctuation">.</span><span class="token function">readline</span><span class="token punctuation">(</span><span class="token function">get_prompt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">as_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// If the input was successfully read, add it to the history and return it</span>
+        <span class="token class-name">Ok</span><span class="token punctuation">(</span>input<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> rl<span class="token punctuation">.</span><span class="token function">add_history_entry</span><span class="token punctuation">(</span>input<span class="token punctuation">.</span><span class="token function">as_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">is_err</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token macro property">println!</span><span class="token punctuation">(</span><span class="token string">"Failed to add input to history"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token class-name">Some</span><span class="token punctuation">(</span>input<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token class-name">Err</span><span class="token punctuation">(</span><span class="token namespace">rustyline<span class="token punctuation">::</span>error<span class="token punctuation">::</span></span><span class="token class-name">ReadlineError</span><span class="token punctuation">::</span><span class="token class-name">Interrupted</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token macro property">println!</span><span class="token punctuation">(</span><span class="token string">"Interrupted process: {:?}"</span><span class="token punctuation">,</span> <span class="token namespace">rustyline<span class="token punctuation">::</span>error<span class="token punctuation">::</span></span><span class="token class-name">ReadlineError</span><span class="token punctuation">::</span><span class="token class-name">Interrupted</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token class-name">None</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// If there was an error reading the input, print the error and return an empty String</span>
+        <span class="token class-name">Err</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token macro property">println!</span><span class="token punctuation">(</span><span class="token string">"Error: {:?}"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token class-name">None</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h2 id="history-command"><a aria-hidden="true" tabindex="-1" href="#history-command"><span class="icon icon-link"></span></a>History Command</h2>
+<p>Just like Bash has the <code>history</code> command, which allows you to view and manipulate the command history, I wanted to implement a similar feature in our shell. This enables users to customize their command history.</p>
+<p>Adding this feature was straightforward since Rustyline already has built-in support for command history. The implementation of the history command was also surprisingly simple. It doesn’t do as much as the Bash version, but it is sufficient. The history file is stored in the home directory with the name <code>.oxsh_history</code>,” similar to Bash.</p>
+<h2 id="init-script"><a aria-hidden="true" tabindex="-1" href="#init-script"><span class="icon icon-link"></span></a>Init Script</h2>
+<p>I also added the possibility to read an initial script when starting the shell. This script has to be situated in the home directory of the user using the shell, but in the future, I might implement global init scripts.</p>
+<p>These scripts are written in Bash, so executing and displaying the output to the shell is fairly easy. I know it’s kind of ironic, but I didn’t want to spend time making my own scripting language as it would consume a lot of time and wouldn’t be very beneficial, at least for now.</p>
+<h2 id="installation-script"><a aria-hidden="true" tabindex="-1" href="#installation-script"><span class="icon icon-link"></span></a>Installation Script</h2>
+<p>Instead of having to download the whole project and compile it yourself, I made a brief installation script that does this for you. Additionally, it creates the init script with a default message and manages all the executable permissions so that you can directly execute the <code>oxsh</code> program and be ready to go.</p>
+<h2 id="what-now"><a aria-hidden="true" tabindex="-1" href="#what-now"><span class="icon icon-link"></span></a>What Now?</h2>
+<p>I think this will be the last post of the shell series, as it has achieved its goal: helping me learn Rust and understand it better. I might make a new post in the future expanding the project, but I’m not sure about it yet.</p>
+<p>I also want to focus on other things, like <code>OpenGL</code> or <code>SDL2</code>. So, I think I will start a new project to work on that, as graphic displays are something I wanted to learn since before starting this project. The only problem was that I wasn’t familiar with the language itself, and I honestly didn’t want to do it in <strong>C++</strong> or <strong>C</strong> because of memory insecurities. But who knows, maybe I will have to, especially with <code>OpenGL</code> or other 3D APIs.</p>
+<p>So, I’ll see you in the next project!</p> </div> <div class="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">  </div>  </div> <footer> <div class="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y"> <div class="py-4 xl:py-8"> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Tags
+</h2> <div class="flex flex-wrap"> <a href="/tags/rust" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">rust</a> </div> </div> <div class="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8"> <div> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Previous Article
+</h2> <div class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"> <a href="/blog/building-a-unixshell-in-rust-part-3">Building a Unix-shell in Rust - Part 3</a> </div> </div>  </div> </div> <div class="pt-4 xl:pt-8"> <a href="/blog" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+&larr; Back to the blog
+</a> </div> </footer> </div> </div> </article>  </div> </main> <footer> <div class="mt-16 flex flex-col items-center"> <!--Social icons --> <div class="mb-3 flex space-x-4">  <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno"><span class="sr-only">github</span><svg width="24" height="24" viewBox="0 0 24 24" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" data-icon="social-icons/github">  <symbol id="ai:local:social-icons/github"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol> <use  xlink:href="#ai:local:social-icons/github"></use> </svg></a>  </div> <!--Little text at the bottom --> <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400"> <div>David</div> <div> • </div> <div>© 2024</div> <div> • </div> <a href="/">David</a> </div> </div> </footer> </div>  </div> </body></html>
