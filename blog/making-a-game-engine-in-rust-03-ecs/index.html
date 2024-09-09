@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en-us"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="canonical" href="https://estikno.github.io/blog/making-a-game-engine-in-rust-03-ecs/"><meta name="generator" content="Astro v4.2.6"><!--Icons --><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" type="image/png" href="/favicons/apple-touch-icon.png"><link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5"><!-- General Meta Tags --><title>Making a Game Engine in Rust 03: ECS</title><meta name="title" content="Making a Game Engine in Rust 03: ECS"><meta name="description" content="This post covers the creation of a basic ECS for the game engine."><meta name="author" content="david"><link rel="sitemap" href="/sitemap-index.xml"><!-- Open Graph / Facebook --><meta property="og:title" content="Making a Game Engine in Rust 03: ECS"><meta property="og:description" content="This post covers the creation of a basic ECS for the game engine."><meta property="og:url" content="https://estikno.github.io/blog/making-a-game-engine-in-rust-03-ecs/"><meta property="og:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://estikno.github.io/blog/making-a-game-engine-in-rust-03-ecs/"><meta property="twitter:title" content="Making a Game Engine in Rust 03: ECS"><meta property="twitter:description" content="This post covers the creation of a basic ECS for the game engine."><meta property="twitter:image" content="https://estikno.github.io/src/assets/twitter-card.png"><!--Theme --><meta name="msapplication-TileColor" content="#000000"><meta name="theme-color" content="#000000"><link rel="stylesheet" href="/_astro/_slug_.DyULmj4d.css" />
+<link rel="stylesheet" href="/_astro/index.jM-hntqy.css" /><script type="module" src="/_astro/hoisted.oWag_usr.js"></script></head> <body class="dark:bg-neutral-900"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="flex h-screen flex-col justify-between"> <header class="flex items-center justify-between py-10"> <!--Left part of the navbar (Icon and name) --> <div> <a href="/"> <div class="flex items-center justify-between"> <div class="mr-3"> <img src="/_astro/logo_small.CNWsemSi_ZgIJL2.webp" alt="logo" width="69" height="67" loading="lazy" decoding="async"> </div> <div class="hidden h-6 text-2xl font-semibold sm:block dark:text-gray-100"> David </div> </div> </a> </div> <!--Right part of the navbar with all the links --> <div class="flex items-center text-base leading-5"> <div class="hidden sm:block"> <a href="/" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Home</a><a href="/blog" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Blog</a><a href="/tags" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Tags</a><a href="/projects" class="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">Projects</a> </div> <!--Some other options like the theme switch and the mobile navbar hidden --> <!--Theme's button --><button aria-label="Toggle Dark Mode" type="button" class="ml-1 mr-1 h-8 w-8 rounded p-1 sm:ml-4" id="themeSwitch"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path id="sun" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path> <path id="moon" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path> </svg> </button> <script>
+    //Theme switch logic
+
+    //Gets all elements
+    const button = document.getElementById("themeSwitch");
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+
+    //A function that sets the icon's properties given the current theme theme (dark, light)
+    const iconToggle = (dark) => {
+        if(dark){
+            sun.classList.add("hidden");
+            moon.classList.remove("hidden");
+            return;
+        }
+
+        moon.classList.add("hidden");
+        sun.classList.remove("hidden");
+    }
+
+    //Sees if the theme has already been set
+    const theme = (() => {
+        //If the theme is the localstorage returns that
+        if (localStorage.getItem("theme")) {
+            return localStorage.getItem("theme");
+        }
+
+        //If not checks the css property related to the theme
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+
+        //If there is nothing set returns light
+        return "light";
+    })();
+
+    //Sets the current icon with the theme variable from before
+    if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        iconToggle(false);
+    } else {
+        document.documentElement.classList.add("dark");
+        iconToggle(true)
+    }
+
+    //Sets the current theme in the localstorage for later retrieving
+    window.localStorage.setItem("theme", theme);
+
+    //This function is in charge of changing the theme when the theme switch is pressed
+    const themeSwitch = () => {
+        if(document.documentElement.classList.contains("dark")){
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+            iconToggle(false);
+            return;
+        }
+
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        iconToggle(true);
+    }
+
+    //Sets the previos function to excecute when he switch is clicked
+    button.addEventListener("click", () => {
+        themeSwitch();
+    })
+</script> <div> <!--Open button --> <button aria-label="Toggle Menu" class="sm:hidden hamburger-menu" aria-expanded="false"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100 h-8 w-8"> <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path> </svg> </button> <!--Displayable navbar --> <div class="fixed left-0 top-0 z-10 h-full w-full transform opacity-95 dark:opacity-[0.98] bg-white duration-300 ease-in-out dark:bg-gray-950 translate-x-full" id="menuNav"> <!--Close button --> <div class="flex justify-end"> <button class="mr-8 mt-11 h-8 w-8 hamburger-menu" aria-label="Toggle Menu"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-gray-900 dark:text-gray-100"> <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path> </svg> </button> </div> <!--All links --> <nav class="fixed mt-8 h-full"> <div class="px-12 py-4"> <a href="/" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Home</a> </div><div class="px-12 py-4"> <a href="/blog" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Blog</a> </div><div class="px-12 py-4"> <a href="/tags" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Tags</a> </div><div class="px-12 py-4"> <a href="/projects" class="text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100 hamburger-menu">Projects</a> </div> </nav> </div> </div>  </div> </header> <main class="mb-auto"> <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">  <div class="fixed bottom-8 right-8 hidden flex-col gap-3 md:hidden" id="showScroll"> <button aria-label="Scroll To Top" type="button" id="scrollToTop" class="rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"> <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"> <path d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"></path> </svg> </button> </div>  <article> <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700"> <header class="pt-6 xl:pb-6"> <div class="space-y-1 text-center"> <dl class="space-y-10"> <div> <dt class="sr-only">Published on</dt> <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"> <time datetime="Mon Sep 09 2024"> Monday, September 9, 2024 </time> </dd> </div> </dl> <div> <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14"> Making a Game Engine in Rust 03: ECS </h1> </div> </div> </header> <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0" style="grid-template-rows:auto 1fr"> <dl class="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700"> <dt class="sr-only">Authors</dt> <dd> <ul class="flex justify-center space-x-8 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8"> <li class="flex items-center space-x-2"> <img src="/_astro/avatar.L70rEw0e_ZiYUwP.webp" alt="avatar" class="h-10 w-10 rounded-full" width="38" height="38" loading="lazy" decoding="async"> <dl class="whitespace-nowrap text-sm font-medium leading-5"> <dt class="sr-only">
+Name
+</dt> <dd class="text-gray-900 dark:text-gray-100"> David </dd> <dt class="sr-only">
+Twitter
+</dt> <dd> <a target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">@Estikno</a> </dd> </dl> </li> </ul> </dd> </dl> <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0"> <div class="prose max-w-none pb-8 pt-10 dark:prose-dark"> <p>I know it’s been some time since the last post, but I’ve been busy working on the ECS (Entity-Component-System). It took a while to get right, but I’ve finally finished a basic, yet usable, implementation that will be crucial for future features in the game engine.</p>
+<h2 id="what-is-ecs"><a aria-hidden="true" tabindex="-1" href="#what-is-ecs"><span class="icon icon-link"></span></a>What is ECS?</h2>
+<p><strong>ECS</strong>, or <strong>Entity-Component-System</strong>, is a design pattern used primarily in game development. It separates the data (components) from the behavior (systems) and applies it to the entities within the game world. This pattern allows for a more flexible, scalable, and efficient way to manage game objects and their interactions.</p>
+<p>In an ECS:</p>
+<ul>
+<li><strong>Entities</strong> are the objects in your game (e.g., players, enemies, projectiles).</li>
+<li><strong>Components</strong> are the data associated with entities (e.g., position, velocity, health).</li>
+<li><strong>Systems</strong> operate on entities with specific components, defining the game’s behavior (e.g., movement system updates positions, collision system checks for overlaps).</li>
+</ul>
+<p>ECS is particularly beneficial because it allows for better cache efficiency and more modular code. You can add, remove, or modify components and systems without affecting other parts of the game, making the engine more maintainable.</p>
+<h2 id="how-its-implemented"><a aria-hidden="true" tabindex="-1" href="#how-its-implemented"><span class="icon icon-link"></span></a>How It’s Implemented</h2>
+<p>To implement ECS, I created a struct called <code>World</code>, which acts as the main structure that the end-user interacts with. The <code>World</code> struct contains three primary components:</p>
+<ul>
+<li><strong>Resources:</strong> A struct that stores all the resources used in the game.</li>
+<li><strong>Entities:</strong> A struct that manages all the entities and their associated components.</li>
+<li><strong>Systems:</strong> A struct that holds all the systems responsible for game logic.</li>
+</ul>
+<p>The <code>World</code> struct provides methods that simplify interactions with these underlying components, making it easier for the user to work with the ECS framework.</p>
+<h2 id="how-it-works"><a aria-hidden="true" tabindex="-1" href="#how-it-works"><span class="icon icon-link"></span></a>How It Works</h2>
+<p>One of the main challenges in ECS is allowing the user to access resources across different parts of the game. If we used simple references, we’d run into issues where multiple references require mutability, which Rust’s safety guarantees won’t allow.</p>
+<p>To solve this, I utilized <strong>smart pointers</strong>—specifically, <code>Rc</code> and <code>RefCell</code>. These allow for <em>interior mutability</em>, meaning that while multiple references can exist, only one can be mutable at any given time. This approach ensures safety while allowing different parts of the program to modify and read shared data like the game’s score or state.</p>
+<p><em>Tip:</em> If you’re familiar with Rust, you might know about <code>Arc</code>, a multithreaded version of <code>Rc</code>. However, since I’m not focusing on multithreading right now, <code>Arc</code> isn’t necessary—at least for the time being.</p>
+<h3 id="resources"><a aria-hidden="true" tabindex="-1" href="#resources"><span class="icon icon-link"></span></a>Resources</h3>
+<p>The resources implementation is fairly simple. It’s just a struct with a <strong>HashMap</strong> that stores all the game’s resources, with the key being the type ID of the resource. I’ve added some methods to make resource retrieval easier, so working with resources is straightforward and efficient.</p>
+<h3 id="entities"><a aria-hidden="true" tabindex="-1" href="#entities"><span class="icon icon-link"></span></a>Entities</h3>
+<p>The entity system is a bit more complex. Essentially, entities are stored in a large table where each row represents a different component, and each column corresponds to an entity.</p>
+<p>Here’s a simple example:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th align="center"><strong>0</strong></th><th align="center"><strong>1</strong></th><th align="center"><strong>2</strong></th><th align="center"><strong>3</strong></th><th><strong>…</strong></th></tr></thead><tbody><tr><td><strong>Location</strong></td><td align="center">(2,3)</td><td align="center">(0,0)</td><td align="center">(182, 12)</td><td align="center">(800, 800)</td><td>…</td></tr><tr><td><strong>Speed</strong></td><td align="center">(1, 0)</td><td align="center"></td><td align="center"></td><td align="center">(-2, 1)</td><td>…</td></tr><tr><td><strong>Health</strong></td><td align="center">100</td><td align="center"></td><td align="center">57</td><td align="center"></td><td>…</td></tr><tr><td>…</td><td align="center">…</td><td align="center">…</td><td align="center">…</td><td align="center">…</td><td>…</td></tr></tbody></table>
+<p>Not all entities have all components, so the challenge is efficiently determining which components an entity has without wasting time.</p>
+<p>To address this, I implemented <strong>bitmasks</strong>. Each component type is assigned a unique bitmask, which is bit-shifted according to its index. For example:</p>
+<ul>
+<li><strong>Location:</strong> <code>00000001</code></li>
+<li><strong>Speed:</strong> <code>00000010</code></li>
+<li><strong>Health:</strong> <code>00000100</code></li>
+</ul>
+<p>Each entity then has a map that stores a combination of these bitmasks, representing which components it possesses. This approach uses a bit more memory but significantly improves the efficiency of querying components.</p>
+<p>For example, based on the table above, the bitmask for the first entity would be <code>00000111</code>, for the second entity <code>00000001</code>, and for the third <code>00000101</code>.</p>
+<h3 id="systems"><a aria-hidden="true" tabindex="-1" href="#systems"><span class="icon icon-link"></span></a>Systems</h3>
+<p>The last part of the ECS is the <strong>systems</strong>. Systems work similarly to entities but are much simpler. Each system operates on specific components, and it includes at least one method that gets called to update the game state based on the components it interacts with.</p>
+<h2 id="whats-next"><a aria-hidden="true" tabindex="-1" href="#whats-next"><span class="icon icon-link"></span></a>What’s Next?</h2>
+<p>So that’s what I’ve been working on lately—getting the ECS up and running. It’s a crucial part of the game engine and will serve as the foundation for many other features. In the next post, I’ll probably talk about the renderer, but I might dive into the math library first. We’ll see how it goes.</p>
+<p><em>Stay tuned, and thanks for following along!</em></p> </div> <div class="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">  </div>  </div> <footer> <div class="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y"> <div class="py-4 xl:py-8"> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Tags
+</h2> <div class="flex flex-wrap"> <a href="/tags/rust" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">rust</a><a href="/tags/game-engine" class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">game-engine</a> </div> </div> <div class="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8"> <div> <h2 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+Previous Article
+</h2> <div class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"> <a href="/blog/making-a-game-engine-in-rust-02-first-steps">Making a Game Engine in Rust 02: First Steps</a> </div> </div>  </div> </div> <div class="pt-4 xl:pt-8"> <a href="/blog" class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+&larr; Back to the blog
+</a> </div> </footer> </div> </div> </article>  </div> </main> <footer> <div class="mt-16 flex flex-col items-center"> <!--Social icons --> <div class="mb-3 flex space-x-4">  <a class="text-sm text-gray-500 transition hover:text-gray-600" target="_blank" rel="noopener noreferrer" href="https://github.com/Estikno"><span class="sr-only">github</span><svg width="24" height="24" viewBox="0 0 24 24" class="fill-current text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-primary-400 h-6 w-6" data-icon="social-icons/github">  <symbol id="ai:local:social-icons/github"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol> <use  xlink:href="#ai:local:social-icons/github"></use> </svg></a>  </div> <!--Little text at the bottom --> <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400"> <div>David</div> <div> • </div> <div>© 2024</div> <div> • </div> <a href="/">David</a> </div> </div> </footer> </div>  </div> </body></html>
